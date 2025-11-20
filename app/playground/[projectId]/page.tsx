@@ -8,6 +8,7 @@ import { useParams, useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import { se } from 'date-fns/locale'
 import { Save } from 'lucide-react'
+import { toast } from 'sonner'
 
 export type Frame = {
   projectId: string,
@@ -90,6 +91,12 @@ const PlayGround = () => {
       setLoading(true);
       const result = await axios.get('/api/frames?frameId='+frameId+'&projectId='+projectId);
       setFrameDetail(result.data);
+
+      const designCode = result.data?.designCode;
+      const index = designCode.indexOf('```html') + 7;
+      const formattedCode = designCode.slice(index);
+      setGeneratedCode(formattedCode);
+      
       //console.log(result.data.chatMessages);
       if(result.data?.chatMessages?.length == 1){
         const userMsg = await result.data?.chatMessages[0].content;
@@ -114,7 +121,6 @@ const PlayGround = () => {
       ]);
 
       await setMsgDetail(userInput);
-
       setLoading(false);
 
     };
@@ -146,7 +152,7 @@ const PlayGround = () => {
           setGeneratedCode((prev:any)=> prev + chunk);
         }
       }
-
+      await SaveGeneratedCode(aiResponse);
       if(!isCode){
           setMessages((prev:any)=> [
             ...prev,
@@ -174,6 +180,21 @@ const PlayGround = () => {
       //console.log(result);
     };
 
+    /* useEffect(() => {
+      if(generatedCode.length > 10 && !loading){
+        SaveGeneratedCode();
+      }
+    }, [generatedCode]); */
+
+    const SaveGeneratedCode = async (code:string) => {
+      const result = await axios.put('/api/frames', {
+        designCode: code,
+        frameId: frameId,
+        projectId: projectId,
+      });
+      console.log(result.data);
+      toast.success('Website is Ready!');
+    };
 
   return (
     <div>
@@ -181,7 +202,7 @@ const PlayGround = () => {
         <div className='flex'>
         <ChatSection messages={messages ?? []} loading={loading} 
         onSend={(input:string)=>SendMessage(input)} />
-        <WebsiteDesign generatedCode={generatedCode} />
+        <WebsiteDesign generatedCode={generatedCode?.replace('```', '')} />
         <ElementSettingSection />
         </div>
     </div>
