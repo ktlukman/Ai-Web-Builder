@@ -30,3 +30,9 @@ export const chatTable = pgTable("chats", {
   createdBy: varchar().references(() => usersTable.email),
   createdOn: timestamp().defaultNow(),
 });
+
+export const uploadTable = pgTable("upload", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar(),
+  path: varchar(),
+});

@@ -9,6 +9,7 @@ import axios from 'axios'
 import { se } from 'date-fns/locale'
 import { Save } from 'lucide-react'
 import { toast } from 'sonner'
+import Upload from '../_components/Upload'
 
 export type Frame = {
   projectId: string,
@@ -199,6 +200,7 @@ const PlayGround = () => {
   return (
     <div>
         <PlayGroundHeader />
+        <Upload />
         <div className='flex'>
         <ChatSection messages={messages ?? []} loading={loading} 
         onSend={(input:string)=>SendMessage(input)} />
